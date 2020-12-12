@@ -127,14 +127,14 @@ public class BarrierManager : MonoBehaviour {
             // Then, position the new player directly above the keyhole
             newPlayer.SetParent (newBarrier.transform.GetChild (keyholeIndex));
             newPlayer.localPosition = new Vector3 (0, 1.5f, 1);
-            newPlayer.localScale = new Vector3 (1, 1, 1);
+            newPlayer.localScale = Vector3.one;
 
-            // Finally, disable the PlayerScript
+            // Finally, disable the PlayerScript to prevent input from affecting
             newPlayer.gameObject.GetComponent<PlayerScript> ().enabled = false;
             // /////////////////////////////////////////////////////////////////////////////////////
 
-            // Add a downward velocity to the newly created barrier:
-            newBarrier.GetComponent<Rigidbody2D> ().velocity = newPlayer.GetComponent<Rigidbody2D> ().velocity = new Vector2 (0, -m_MovementSpeed);
+            // Add the new player to be a child of the barrier to link movement and apply downward force
+            newBarrier.GetComponent<Rigidbody2D> ().AddForce(Vector2.down * m_MovementSpeed);
         }
     }
 }
