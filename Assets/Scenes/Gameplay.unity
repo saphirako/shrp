@@ -519,20 +519,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95cbc28e28afe446c83d13e873babd20, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_PieceContainer: {fileID: 1572882897477836, guid: 3cb7ad64b953d4fc2be68dbed21cdb19,
-    type: 3}
-  m_DefaultBarrier: {fileID: 1599574994374210, guid: cf141d0d895f34b89b36faf6cc5ed737,
-    type: 3}
-  m_CircleBarrier: {fileID: 1488156128688696, guid: ae01309488faf41f383bc240d941dc88,
-    type: 3}
-  m_TriangleBarrier: {fileID: 1323806572545690, guid: d978ea651228c467e82718b2a72fc8c8,
-    type: 3}
-  m_SquareBarrier: {fileID: 1695096229981616, guid: 8d26a5b05eda44d118303cf462220eab,
-    type: 3}
-  MustInclude: 0
   m_SpawnSpeed: 7
-  m_MovementSpeed: 160
-  m_PieceCount: 11
 --- !u!1 &725412338
 GameObject:
   m_ObjectHideFlags: 0
@@ -1636,16 +1623,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   GameState: 0
-  mPlayer: {fileID: 0}
   mBarrierManager: {fileID: 669229822}
   m_UIManager: {fileID: 1176659444}
-  mFirstPlayerSpawnPoint: {fileID: 1564910245}
-  m_CirclePlayer: {fileID: 1851335293557914, guid: 6516d56e55185451a8389fae0188b3b7,
-    type: 3}
-  m_TrianglePlayer: {fileID: 1815168811499424, guid: c0b74327633784e5fafcd516c8702ac8,
-    type: 3}
-  m_SquarePlayer: {fileID: 1490792437353494, guid: cec918de2db0b40ffac3f2047e516869,
-    type: 3}
+  InitialSpawn: {fileID: 1564910245}
 --- !u!4 &1559675554
 Transform:
   m_ObjectHideFlags: 0

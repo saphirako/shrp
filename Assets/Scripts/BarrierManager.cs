@@ -15,126 +15,58 @@ using UnityEngine;
 
 
 public class BarrierManager : MonoBehaviour {
-    // ///////////////////////////////
-    // Barrier piece prefabs: ////////
-    // These contain the GameObjects used to create individual pieces of a barrier    
-    // ///////////////////////////////
-    [SerializeField]
-    private GameObject m_PieceContainer;
-    [SerializeField]
-    private GameObject m_DefaultBarrier;
-    [SerializeField]
-    private GameObject m_CircleBarrier;
-    [SerializeField]
-    private GameObject m_TriangleBarrier;
-    [SerializeField]
-    private GameObject m_SquareBarrier;
-    // ///////////////////////////////
-    
-    public enum Shape {CIRCLE = 0, TRIANGLE = 1, SQUARE = 2};      // Used to determin current and future player objects to be spawned and their corresponding keyholes
-    public Shape MustInclude = Shape.CIRCLE;      // Represents what kind of barrier piece MUST be included in the next barrier in order to continue gameplay
+    public static float Speed { get {return m_MovementSpeed; }}
+    public static int ComponentCount { get {return m_PieceCount; }}
+    public static float PieceScale { get {return m_PieceScale; }}
+
+    public enum Shape { UNINITIALIZED = 0, CIRCLE = 1, TRIANGLE = 2, SQUARE = 3 };      // Used to determin current and future player objects to be spawned and their corresponding keyholes
 
     [SerializeField]
-	private float m_SpawnSpeed = 3.0f;               // Interval (in seconds) in which barriers are spawned. m_SpawnTimer is reset to this value when it reaches 0.
-	[SerializeField]
-	private float m_MovementSpeed = 7.0f;            // Speed with which each Barrier (and deactivated players) move
+    private float m_SpawnSpeed = 3.0f;               // Interval (in seconds) in which barriers are spawned. m_SpawnTimer is reset to this value when it reaches 0.
     [SerializeField]
-    private int m_PieceCount = 11;                   // Dictates how many barrier pieces comprise a barrier
+    private static float m_MovementSpeed = 7.0f;            // Speed with which each Barrier (and deactivated players) move
+    [SerializeField]
+    private static int m_PieceCount = 11;                   // Dictates how many barrier pieces comprise a barrier
 
     private RectTransform m_Container;               // Empty GameObject that is the parent to all spawned barriers
-	private float m_SpawnTimer = 0f;                 // Time (in seconds) until the next barrier will spawn
-    private float m_PieceScale;                      // Ratio used to rescale the pieces of a barrier to remove any gaps between them 
+    private float m_SpawnTimer = 0f;                 // Time (in seconds) until the next barrier will spawn
+    private static float m_PieceScale;                      // Ratio used to rescale the pieces of a barrier to remove any gaps between them 
 
     // Unity Methods:
-    private void Awake () {
-        m_Container = (RectTransform)transform.GetChild (0);
+    private void Awake() {
+        m_Container = (RectTransform)transform.GetChild(0);
         m_PieceScale = m_Container.rect.width / m_PieceCount;      // This will always be relative to the camera of the camera due to the RectTransform's settings in m_Container
     }
-    private void OnEnable () {
+    private void OnEnable() {
         // In the event there are barriers from the last game, clear them:
         for (int c = 0; c < m_Container.childCount; c++) {
-            GameObject toBeDeleted = m_Container.GetChild (c).gameObject;
+            GameObject toBeDeleted = m_Container.GetChild(c).gameObject;
             if (toBeDeleted.tag == "Untagged")
-                Destroy (toBeDeleted);
+                Destroy(toBeDeleted);
         }
     }
 
-    private void Update () {
-        if (m_SpawnTimer < 0) {
-			m_SpawnTimer = m_SpawnSpeed;
-            SpawnBarrierAndNextPlayer ();
-		}
+    private void Update() {
+        // We only want to spawn a new Barrier if we're in-game
+        if (GameManager.Instance.GameState == GameManager.GameStates.IN_GAME) {           
+            if (m_SpawnTimer < 0) {
+                m_SpawnTimer = m_SpawnSpeed;
+                SpawnBarrierAndNextPlayer();
+            }
 
-		else
-			m_SpawnTimer -= Time.deltaTime;
+            else
+                m_SpawnTimer -= Time.deltaTime;
+        }
     }
-
 
 
     // SpawnBarrier ():     Creates a new barrier using the barrier piece prefabs, creates the next player object, and attaches it to it
-    private void SpawnBarrierAndNextPlayer () {
-        // We only want to actually spawn a new Barrier if we're in-game
-        if (GameManager.Instance.GameState == GameManager.GameStates.IN_GAME) {
-            // Create a new PieceContainter, make it a child of the container:
-            GameObject newBarrier = Instantiate (m_PieceContainer, m_Container);
-
-            // Create a reference that will be used when generating pieces of the barrier
-            GameObject newPiece;
-
-            // Find a place for the prefab to go that is within the bookends of the barrier
-            int keyholeIndex = (int)Random.Range (1, m_PieceCount - 2);
-
-            // Create the pieces of the barrier:
-            for (int c = 0; c < m_PieceCount; c++) {
-                if (c == keyholeIndex) {
-                    // If c and keyholeIndex match, we need to instiate a piece that matches the type in MustInclude.
-                    switch (MustInclude) {
-                        case Shape.CIRCLE:
-                            newPiece = Instantiate (m_CircleBarrier, newBarrier.transform);
-                            break;
-
-                        case Shape.SQUARE:
-                            newPiece = Instantiate (m_SquareBarrier, newBarrier.transform);
-                            break;
-                            
-                        case Shape.TRIANGLE:
-                            newPiece = Instantiate (m_TriangleBarrier, newBarrier.transform);
-                            break;
-
-                        default:
-                            Debug.LogError ("Failure creating a keyhole! Generating non-keyhole barrier piece.");
-                            newPiece = Instantiate (m_DefaultBarrier, newBarrier.transform);
-                            break;
-                    }
-                }
-
-                else
-                    newPiece = Instantiate (m_DefaultBarrier, newBarrier.transform);
-
-                // Properly scale the new piece
-                newPiece.transform.localScale = new Vector3 (m_PieceScale, m_PieceScale, 1);
-            }
-
-            // //////////////////////////////////////////////////////////////////
-            // With the new barrier now created, we need to attach the new player object.
-            // //////////////////////////////////////////////////////////////////
-            // First, determine its shape:
-            MustInclude = (Shape) ((int) Random.Range (0, 3));
-
-            // Then, instantiate the correlating prefab:
-            Transform newPlayer = GameManager.Instance.SpawnNewPlayer (MustInclude).transform;
-
-            // Then, position the new player directly above the keyhole
-            newPlayer.SetParent (newBarrier.transform.GetChild (keyholeIndex));
-            newPlayer.localPosition = new Vector3 (0, 1.5f, 1);
-            newPlayer.localScale = Vector3.one;
-
-            // Finally, disable the PlayerScript to prevent input from affecting
-            newPlayer.gameObject.GetComponent<PlayerScript> ().enabled = false;
-            // /////////////////////////////////////////////////////////////////////////////////////
-
-            // Add the new player to be a child of the barrier to link movement and apply downward force
-            newBarrier.GetComponent<Rigidbody2D> ().AddForce(Vector2.down * m_MovementSpeed);
-        }
+    private void SpawnBarrierAndNextPlayer() {
+        // Create new barrier & player objects and attach the player to the barrier
+        Barrier newBarrier = Barrier.CreateNewBarrier(m_Container);
+        newBarrier.AttachPlayer(Player.CreateNewPlayer(newBarrier.Type));
+    
+        // Start new barrier downward movement
+        newBarrier.Move();
     }
 }

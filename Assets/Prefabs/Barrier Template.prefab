@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 224147766200717662}
   - component: {fileID: 114243111963724502}
   - component: {fileID: 50561285175067470}
+  - component: {fileID: -8383798804304401929}
   m_Layer: 9
   m_Name: Barrier Template
   m_TagString: Untagged
@@ -84,3 +85,16 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 5
+--- !u!114 &-8383798804304401929
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1572882897477836}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29962fe116b1f8d4eaf89b526eedab53, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Type: 0

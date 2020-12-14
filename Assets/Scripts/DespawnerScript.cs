@@ -19,7 +19,7 @@ public class DespawnerScript : MonoBehaviour {
         try {
             Destroy (toBeDestroyed.transform.parent.gameObject);
         } catch {
-            Destroy (toBeDestroyed.transform.gameObject);   // This will happen when the active PlayerScript hits the Despawner
+            Destroy (toBeDestroyed.transform.gameObject);   // This will happen when the active Player hits the Despawner
         }
     }
 }

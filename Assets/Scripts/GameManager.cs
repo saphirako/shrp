@@ -23,32 +23,20 @@ public class GameManager : MonoBehaviour {
 	public int Score { get { return m_CurrentScore;} }
 
 	[SerializeField]
-	private PlayerScript mPlayer;
-	[SerializeField]
 	private BarrierManager mBarrierManager;
 	[SerializeField]
 	private UIManager m_UIManager;
-	[SerializeField]
-	private Transform mFirstPlayerSpawnPoint;
+	public Transform InitialSpawn;
 
 	private int m_CurrentScore;
 	private int m_HighScore;
-	// ///////////////////////////////
-    // Player prefabs:  //////////////
-    // These contain the GameObjects used to create player objects    
-    // ///////////////////////////////
-    [SerializeField]
-    private GameObject m_CirclePlayer;
-    [SerializeField]
-    private GameObject m_TrianglePlayer;
-    [SerializeField]
-    private GameObject m_SquarePlayer;
-    // ///////////////////////////////
+
 
 	// Unity Methods:
 	public void Awake () {
 		if (Instance == null) {
 			Instance = this;
+			Player.InitializeResources();				// Load the prefabs into the Player scipt
 			DontDestroyOnLoad (gameObject);
 		}
 
@@ -60,48 +48,11 @@ public class GameManager : MonoBehaviour {
 		}
 	}
 
-	// SetNewPlayer ():		Sets mPlayer to the argued PlayerScript and rename its GameObject to 'Player'
-	public void SetNewPlayer (PlayerScript newPlayer) {
-		mPlayer = newPlayer;
-		mPlayer.gameObject.name = "Player";
-	}
-
-	// SpawnNewPlayer ():		Instantiates a new player prefab based on the provided Shape. The attached boolean is used to determine whether this is the first player of the game.
-	public GameObject SpawnNewPlayer (BarrierManager.Shape requiredShape, bool isAFirstPlayer = false) {
-		GameObject newPlayer;
-
-		switch (requiredShape) {
-			case BarrierManager.Shape.CIRCLE:
-				newPlayer = Instantiate (m_CirclePlayer);
-				break;
-			
-			case BarrierManager.Shape.TRIANGLE:
-				newPlayer = Instantiate (m_TrianglePlayer);
-				break;
-			
-			case BarrierManager.Shape.SQUARE:
-				newPlayer = Instantiate (m_SquarePlayer);
-				break;
-
-			default:
-				Debug.LogError ("Error creating a new player. Defaulting to Shape.CIRCLE.");
-				newPlayer = Instantiate (m_CirclePlayer);
-				break;
-		}
-
-		// If this is the first player of the game, we need to move it to the default position for first players and update mPlayer
-		if (isAFirstPlayer) {
-			newPlayer.transform.SetPositionAndRotation (mFirstPlayerSpawnPoint.position, mFirstPlayerSpawnPoint.rotation);
-			SetNewPlayer (newPlayer.GetComponent<PlayerScript> ());
-		}
-
-		return newPlayer;
-	}
 
 	// NewGame ():		Spawns a first player, advises UI Manager, and sets the GameState to IN_GAME
 	public void NewGame () {
 		m_UIManager.HideMainMenu ();
-		SpawnNewPlayer (mBarrierManager.MustInclude, true);
+		Player.CreateNewPlayer((BarrierManager.Shape)((int)Random.Range(1, 4)), true);
 		GameState = GameStates.IN_GAME;
 	}
 
