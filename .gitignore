@@ -5,6 +5,11 @@
 [Bb]uilds/
 Assets/AssetStoreTools*
 
+# Hide pre-compiled AssetBundles & custom editor commands
+Assets/Bundles/
+Assets/Editor/*
+!Assets/Editor/*.cs
+
 # Hide the Controller Tester from the repo
 Assets/Controller Tester/*
 */Controller Tester*

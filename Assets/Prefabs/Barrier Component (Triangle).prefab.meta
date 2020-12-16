@@ -1,8 +1,7 @@
 fileFormatVersion: 2
 guid: d978ea651228c467e82718b2a72fc8c8
-NativeFormatImporter:
+PrefabImporter:
   externalObjects: {}
-  mainObjectFileID: 100100000
   userData: 
-  assetBundleName: 
+  assetBundleName: barrier_components
   assetBundleVariant: 
