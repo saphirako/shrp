@@ -60,9 +60,15 @@ public class Player : MonoBehaviour {
     }
 
     public static void InitializeResources() {
-        circlePrefab = Resources.Load<GameObject>("Player (Circle)");
-        squarePrefab = Resources.Load<GameObject>("Player (Square)");
-        trianglePrefab = Resources.Load<GameObject>("Player (Triangle)");
+        circlePrefab = Resources.Load<GameObject>("Prefabs/Player (Circle)");
+        squarePrefab = Resources.Load<GameObject>("Prefabs/Player (Square)");
+        trianglePrefab = Resources.Load<GameObject>("Prefabs/Player (Triangle)");
+
+        if (!circlePrefab || !squarePrefab || !trianglePrefab) {
+            Debug.LogError("Failed to load player prefabs!");
+            Application.Quit();
+            UnityEditor.EditorApplication.isPlaying = false;
+        }
     }
 
     public static Player CreateNewPlayer(BarrierManager.Shape requiredShape, bool isFirstPlayer = false) {
