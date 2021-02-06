@@ -14,11 +14,16 @@ public class Barrier : MonoBehaviour {
     // ///////////////////////////////
     public BarrierManager.Shape Type = BarrierManager.Shape.UNINITIALIZED;
 
-    private Rigidbody2D rb;             // 
+    private Rigidbody2D rb;
     private int slotIndex;              // Represents index of barrier components that is the slot for the player to goto
     private Player resident;            // Represents the player object is spawned and moves with this barrier
 
 
+    private void Awake() {
+        rb = GetComponent<Rigidbody2D>();
+    }
+
+    // InitializeResources():       Loads prefabs stored in Resources/Prefabs instead of having to declare prefabs via the Editor UI
     public static void InitializeResources() {
         barrierCollection_prefab = Resources.Load<GameObject>("Prefabs/Barrier Template");
         default_prefab = Resources.Load<GameObject>("Prefabs/Barrier Component");
@@ -35,7 +40,7 @@ public class Barrier : MonoBehaviour {
         Debug.Log("Barrier prefabs loaded succesfully");
     }
 
-
+    // CreateNewBarrier():      Creates a new Barrier Template containing several Barrier Components
     public static Barrier CreateNewBarrier(RectTransform spawnPoint) {
         Barrier newBarrier = Instantiate(barrierCollection_prefab, spawnPoint).GetComponent<Barrier>();
         newBarrier.Type = Player.Current.Type;
@@ -89,6 +94,6 @@ public class Barrier : MonoBehaviour {
 	// Move():		Add a force to the rigidbody of this object
 	public void Move() {
         rb.AddForce(Vector2.down * BarrierManager.Speed);
+        resident.Move(true);
     }
-
 }

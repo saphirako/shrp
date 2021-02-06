@@ -22,9 +22,9 @@ public class BarrierManager : MonoBehaviour {
     public enum Shape { UNINITIALIZED = 0, CIRCLE = 1, TRIANGLE = 2, SQUARE = 3 };      // Used to determin current and future player objects to be spawned and their corresponding keyholes
 
     [SerializeField]
-    private float m_SpawnSpeed = 3.0f;               // Interval (in seconds) in which barriers are spawned. m_SpawnTimer is reset to this value when it reaches 0.
+    private float m_SpawnSpeed = 4.0f;               // Interval (in seconds) in which barriers are spawned. m_SpawnTimer is reset to this value when it reaches 0.
     [SerializeField]
-    private static float m_MovementSpeed = 7.0f;            // Speed with which each Barrier (and deactivated players) move
+    private static float m_MovementSpeed = 100.0f;            // Speed with which each Barrier (and deactivated players) move
     [SerializeField]
     private static int m_PieceCount = 11;                   // Dictates how many barrier pieces comprise a barrier
 
@@ -66,7 +66,7 @@ public class BarrierManager : MonoBehaviour {
         Barrier newBarrier = Barrier.CreateNewBarrier(m_Container);
         newBarrier.AttachPlayer(Player.CreateNewPlayer(newBarrier.Type));
     
-        // Start new barrier downward movement
+        // Start new barrier (and player) downward movement
         newBarrier.Move();
     }
 }

@@ -32,7 +32,7 @@ public class Player : MonoBehaviour {
     private float playerSpeed = 10.0f;         // Player speed constant to be multiplied into Input 
     private float playerDefaultHeight = -4.0f;     // Y-coordinate to which the player tracks vertically
     private float verticalResistance = 0.1f;       // Constant multiplied to y-axis velocity to prevent incididental collisions between previous barriers and the new player
-    private bool isNewPlayer = true;                 // Represents whether the player has touched a barrier
+    private bool isNewPlayer = true;                 // Represents whether the player has not touched a barrier
 
 
     // Unity Methods:
@@ -107,6 +107,12 @@ public class Player : MonoBehaviour {
     public static void SetCurrentPlayer(Player p) {
         Current = p;
         p.gameObject.name = "Player";
+    }
+
+    // Move():          Moves the player object
+    public void Move(bool isExternalForce = false) {
+        // If this is movement call from a different source other than input (ie. Barrier spawn), attach the same force
+        if (isExternalForce) rb.AddForce(Vector2.down * BarrierManager.Speed);
     }
 
     public void OnCollisionEnter2D() {
