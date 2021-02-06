@@ -16,10 +16,12 @@ using UnityEngine;
 
 public class DespawnerScript : MonoBehaviour {
     public void OnTriggerEnter2D (Collider2D toBeDestroyed) {
-        try {
-            Destroy (toBeDestroyed.transform.parent.gameObject);
-        } catch {
-            Destroy (toBeDestroyed.transform.gameObject);   // This will happen when the active Player hits the Despawner
+        if (toBeDestroyed.attachedRigidbody.velocity.y < 0) {
+            try {
+                Destroy (toBeDestroyed.transform.parent.gameObject);
+            } catch {
+                Destroy (toBeDestroyed.transform.gameObject);   // This will happen when the active Player hits the Despawner
+            }
         }
     }
 }

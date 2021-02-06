@@ -17,6 +17,7 @@ using UnityEngine;
 public class Player : MonoBehaviour {
     public static Player Current;         // Represents the player object that the user is currently controlling
     public BarrierManager.Shape Type;       // Represents the shape of the player object
+    private static Transform idleTrackingTarget;     // Position to which player automatically moves when there is no input (when idling)
 
 
     // ///////////////////////////////
@@ -28,10 +29,10 @@ public class Player : MonoBehaviour {
     // ///////////////////////////////
 
     private Rigidbody2D rb;            // Used to control the player's movements by changing its velocity
-    private Vector2 mVelocity;                  // Speed the player should move in 2D space
-    private float playerSpeed = 10.0f;         // Player speed constant to be multiplied into Input 
-    private float playerDefaultHeight = -4.0f;     // Y-coordinate to which the player tracks vertically
-    private float verticalResistance = 0.1f;       // Constant multiplied to y-axis velocity to prevent incididental collisions between previous barriers and the new player
+    private Vector2 playerMovementVector;                  // Speed the player should move in 2D space
+    private float playerSpeed = 20f;         // Player speed constant to be multiplied into Input 
+    private float idleInputDelay = .1f;      // Delay (in seconds) between last time there was input and tracking to the idle position
+    private float lastInputTime;
     private bool isNewPlayer = true;                 // Represents whether the player has not touched a barrier
 
 
@@ -40,23 +41,9 @@ public class Player : MonoBehaviour {
         rb = gameObject.GetComponent<Rigidbody2D>();
     }
     public void Update() {
-        // We only want user input to control the current player object
-        if (this == Current) {
-            // Get input from keyboard:
-            if (Input.GetAxis("Horizontal") != 0)
-                mVelocity.x = Input.GetAxis("Horizontal") * playerSpeed;
-
-            // Get input from touch:
-            if (Input.touchCount > 0) {
-                mVelocity.x = (Camera.main.ScreenToWorldPoint(Input.GetTouch(0).position).x - transform.position.x) * playerSpeed;
-                Debug.Log(mVelocity);
-            }
-
-            // // Correct player position after hitting the barrier / switching Player objects:
-            // mVelocity.y = isNewPlayer ? (playerDefaultHeight - transform.position.y) * verticalResistance * playerSpeed : 0;
-
-            // rb.velocity = mVelocity;
-        }
+        if (Input.GetAxis("Horizontal") != 0 || Input.GetAxis("Vertical") != 0 || Input.touchCount > 0) lastInputTime = idleInputDelay;
+        else if (lastInputTime > 0) lastInputTime -= Time.deltaTime;
+        Current.Move();
     }
 
     public static void InitializeResources() {
@@ -70,6 +57,9 @@ public class Player : MonoBehaviour {
             UnityEditor.EditorApplication.isPlaying = false;
         }
         Debug.Log("Player prefabs loaded succesfully");
+
+        idleTrackingTarget = GameObject.Find("Player Movement Target").transform;
+        Debug.Log("Player Idle Target succesfully initialized");
     }
 
     public static Player CreateNewPlayer(BarrierManager.Shape requiredShape, bool isFirstPlayer = false) {
@@ -113,6 +103,46 @@ public class Player : MonoBehaviour {
     public void Move(bool isExternalForce = false) {
         // If this is movement call from a different source other than input (ie. Barrier spawn), attach the same force
         if (isExternalForce) rb.AddForce(Vector2.down * BarrierManager.Speed);
+
+        // This is direct input for the current player
+        else {
+            if (this == Current) {
+                rb.velocity = Vector2.zero;
+                Vector2 movement;
+                
+                // Get input from keyboard:
+                if (Input.GetAxis("Horizontal") != 0 || Input.GetAxis("Vertical") != 0) {
+                    playerMovementVector.x = Input.GetAxis("Horizontal");
+                    playerMovementVector.y = Input.GetAxis("Vertical");
+                    movement = playerMovementVector * playerSpeed;
+                }
+
+                // Get input from touch:
+                else if (Input.touchCount > 0) {
+                    Vector2 touchPosition = Camera.main.ScreenToWorldPoint(Input.GetTouch(0).position);
+                    playerMovementVector.x = touchPosition.x - transform.position.x;
+                    playerMovementVector.y = touchPosition.y - transform.position.y;
+                    movement = playerMovementVector * playerSpeed;
+                }
+
+                // There is no input and we're beyond the delay time for idling, auto track to center position
+                else {
+                    movement = Vector2.zero;
+                    if (lastInputTime <= 0) {
+                        playerMovementVector.x = idleTrackingTarget.position.x - transform.position.x;
+                        playerMovementVector.y = idleTrackingTarget.position.y - transform.position.y;
+                        movement = playerMovementVector * playerSpeed * .25f;
+                    }
+                }
+
+                Debug.Log($"Velocity: {playerMovementVector},\tSpeed: {playerSpeed}");
+                rb.AddForce(movement);
+            }
+            // Correct player position after hitting the barrier / switching Player objects:
+            // playerVelocity.y = isNewPlayer ? (playerDefaultHeight - transform.position.y) * verticalResistance * playerSpeed : 0;
+
+            // rb.velocity = playerMovementVector;
+        }
     }
 
     public void OnCollisionEnter2D() {
@@ -122,7 +152,7 @@ public class Player : MonoBehaviour {
 
     public void OnTriggerEnter2D(Collider2D other) {
         if (other.tag == "Despawner") {
-            if (this.enabled) {
+            if (this.enabled && this.rb.velocity.y <= 0) {
                 GameManager.Instance.GameOver(true);
             }
         }
