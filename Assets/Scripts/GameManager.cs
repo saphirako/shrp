@@ -36,7 +36,8 @@ public class GameManager : MonoBehaviour {
 	public void Awake () {
 		if (Instance == null) {
 			Instance = this;
-			Player.InitializeResources();				// Load the prefabs into the Player scipt
+			Player.InitializeResources();			// Load the prefabs into the Player scipt
+			Barrier.InitializeResources();			// Load the prefabs into the Barrier script
 			DontDestroyOnLoad (gameObject);
 		}
 

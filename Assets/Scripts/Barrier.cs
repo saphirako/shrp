@@ -6,11 +6,11 @@ public class Barrier : MonoBehaviour {
     // Barrier piece prefabs: ////////
     // These contain the GameObjects used to create individual pieces of a barrier    
     // ///////////////////////////////
-    private static GameObject m_PieceContainer;
-    private static GameObject m_DefaultBarrier;
-    private static GameObject m_CircleBarrier;
-    private static GameObject m_TriangleBarrier;
-    private static GameObject m_SquareBarrier;
+    private static GameObject barrierCollection_prefab;
+    private static GameObject default_prefab;
+    private static GameObject circle_prefab;
+    private static GameObject triangle_prefab;
+    private static GameObject square_prefab;
     // ///////////////////////////////
     public BarrierManager.Shape Type = BarrierManager.Shape.UNINITIALIZED;
 
@@ -19,8 +19,25 @@ public class Barrier : MonoBehaviour {
     private Player resident;            // Represents the player object is spawned and moves with this barrier
 
 
+    public static void InitializeResources() {
+        barrierCollection_prefab = Resources.Load<GameObject>("Prefabs/Barrier Template");
+        default_prefab = Resources.Load<GameObject>("Prefabs/Barrier Component");
+        circle_prefab = Resources.Load<GameObject>("Prefabs/Barrier Component (Circle)");
+        square_prefab = Resources.Load<GameObject>("Prefabs/Barrier Component (Square)");
+        triangle_prefab = Resources.Load<GameObject>("Prefabs/Barrier Component (Triangle)");
+
+        if (!circle_prefab || !square_prefab || !triangle_prefab || !default_prefab || !barrierCollection_prefab) {
+            Debug.LogError("Failed to load barrier prefabs!");
+            Application.Quit();
+            UnityEditor.EditorApplication.isPlaying = false;
+        }
+    
+        Debug.Log("Barrier prefabs loaded succesfully");
+    }
+
+
     public static Barrier CreateNewBarrier(RectTransform spawnPoint) {
-        Barrier newBarrier = Instantiate(m_PieceContainer, spawnPoint).GetComponent<Barrier>();
+        Barrier newBarrier = Instantiate(barrierCollection_prefab, spawnPoint).GetComponent<Barrier>();
         newBarrier.Type = Player.Current.Type;
         newBarrier.slotIndex = (int)Random.Range(1, BarrierManager.ComponentCount - 2);
 
@@ -33,26 +50,26 @@ public class Barrier : MonoBehaviour {
                 // If c and keyholeIndex match, we need to instiate a piece that matches the type in MustInclude.
                 switch (newBarrier.Type) {
                     case BarrierManager.Shape.CIRCLE:
-                        newPiece = Instantiate(m_CircleBarrier, newBarrier.transform);
+                        newPiece = Instantiate(circle_prefab, newBarrier.transform);
                         break;
 
                     case BarrierManager.Shape.SQUARE:
-                        newPiece = Instantiate(m_SquareBarrier, newBarrier.transform);
+                        newPiece = Instantiate(square_prefab, newBarrier.transform);
                         break;
 
                     case BarrierManager.Shape.TRIANGLE:
-                        newPiece = Instantiate(m_TriangleBarrier, newBarrier.transform);
+                        newPiece = Instantiate(triangle_prefab, newBarrier.transform);
                         break;
 
                     default:
                         Debug.LogError("Failure creating a keyhole! Generating non-keyhole barrier piece.");
-                        newPiece = Instantiate(m_DefaultBarrier, newBarrier.transform);
+                        newPiece = Instantiate(default_prefab, newBarrier.transform);
                         break;
                 }
             }
 
             else
-                newPiece = Instantiate(m_DefaultBarrier, newBarrier.transform);
+                newPiece = Instantiate(default_prefab, newBarrier.transform);
 
             // Properly scale the new piece
             newPiece.transform.localScale = new Vector3(BarrierManager.PieceScale, BarrierManager.PieceScale, 1);

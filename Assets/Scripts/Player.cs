@@ -22,9 +22,9 @@ public class Player : MonoBehaviour {
     // ///////////////////////////////
     // Player prefabs: These contain the GameObjects used to create player objects    
     // ///////////////////////////////
-    private static GameObject circlePrefab;
-    private static GameObject trianglePrefab;
-    private static GameObject squarePrefab;
+    private static GameObject circle_prefab;
+    private static GameObject triangle_prefab;
+    private static GameObject square_prefab;
     // ///////////////////////////////
 
     private Rigidbody2D rb;            // Used to control the player's movements by changing its velocity
@@ -60,15 +60,16 @@ public class Player : MonoBehaviour {
     }
 
     public static void InitializeResources() {
-        circlePrefab = Resources.Load<GameObject>("Prefabs/Player (Circle)");
-        squarePrefab = Resources.Load<GameObject>("Prefabs/Player (Square)");
-        trianglePrefab = Resources.Load<GameObject>("Prefabs/Player (Triangle)");
+        circle_prefab = Resources.Load<GameObject>("Prefabs/Player (Circle)");
+        square_prefab = Resources.Load<GameObject>("Prefabs/Player (Square)");
+        triangle_prefab = Resources.Load<GameObject>("Prefabs/Player (Triangle)");
 
-        if (!circlePrefab || !squarePrefab || !trianglePrefab) {
+        if (!circle_prefab || !square_prefab || !triangle_prefab) {
             Debug.LogError("Failed to load player prefabs!");
             Application.Quit();
             UnityEditor.EditorApplication.isPlaying = false;
         }
+        Debug.Log("Player prefabs loaded succesfully");
     }
 
     public static Player CreateNewPlayer(BarrierManager.Shape requiredShape, bool isFirstPlayer = false) {
@@ -76,20 +77,20 @@ public class Player : MonoBehaviour {
 
         switch (requiredShape) {
             case BarrierManager.Shape.CIRCLE:
-                newPlayer = Instantiate(circlePrefab, GameManager.Instance.InitialSpawn).GetComponent<Player>();
+                newPlayer = Instantiate(circle_prefab, GameManager.Instance.InitialSpawn).GetComponent<Player>();
                 break;
 
             case BarrierManager.Shape.TRIANGLE:
-                newPlayer = Instantiate(trianglePrefab, GameManager.Instance.InitialSpawn).GetComponent<Player>();
+                newPlayer = Instantiate(triangle_prefab, GameManager.Instance.InitialSpawn).GetComponent<Player>();
                 break;
 
             case BarrierManager.Shape.SQUARE:
-                newPlayer = Instantiate(squarePrefab, GameManager.Instance.InitialSpawn).GetComponent<Player>();
+                newPlayer = Instantiate(square_prefab, GameManager.Instance.InitialSpawn).GetComponent<Player>();
                 break;
 
             default:
                 Debug.LogError("Error creating a new player. Defaulting to Shape.CIRCLE.");
-                newPlayer = Instantiate(circlePrefab, GameManager.Instance.InitialSpawn).GetComponent<Player>();
+                newPlayer = Instantiate(circle_prefab, GameManager.Instance.InitialSpawn).GetComponent<Player>();
                 break;
         }
 
