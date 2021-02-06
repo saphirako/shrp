@@ -17,10 +17,16 @@ public class Barrier : MonoBehaviour {
     private Rigidbody2D rb;
     private int slotIndex;              // Represents index of barrier components that is the slot for the player to goto
     private Player resident;            // Represents the player object is spawned and moves with this barrier
+    private Vector2 movement = Vector2.zero;       // Force vector applied in Update()
 
 
     private void Awake() {
         rb = GetComponent<Rigidbody2D>();
+    }
+
+    private void Update() {
+        rb.velocity = Vector2.zero;
+        rb.AddForce(movement);
     }
 
     // InitializeResources():       Loads prefabs stored in Resources/Prefabs instead of having to declare prefabs via the Editor UI
@@ -93,7 +99,7 @@ public class Barrier : MonoBehaviour {
 
 	// Move():		Add a force to the rigidbody of this object
 	public void Move() {
-        rb.AddForce(Vector2.down * BarrierManager.Speed);
-        resident.Move(true);
+        movement = (Vector2.down * BarrierManager.Speed);
+        resident.Move(Vector2.down * BarrierManager.Speed);
     }
 }

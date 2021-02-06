@@ -30,9 +30,9 @@ public class Player : MonoBehaviour {
 
     private Rigidbody2D rb;            // Used to control the player's movements by changing its velocity
     private Vector2 playerMovementVector;                  // Speed the player should move in 2D space
-    private float playerSpeed = 20f;         // Player speed constant to be multiplied into Input 
+    private float playerSpeed = 40f;         // Player speed constant to be multiplied into Input 
     private float idleInputDelay = .1f;      // Delay (in seconds) between last time there was input and tracking to the idle position
-    private float lastInputTime;
+    private float lastInputTime = 0f;
     private bool isNewPlayer = true;                 // Represents whether the player has not touched a barrier
 
 
@@ -43,7 +43,15 @@ public class Player : MonoBehaviour {
     public void Update() {
         if (Input.GetAxis("Horizontal") != 0 || Input.GetAxis("Vertical") != 0 || Input.touchCount > 0) lastInputTime = idleInputDelay;
         else if (lastInputTime > 0) lastInputTime -= Time.deltaTime;
+        
+        // Nullify all forces on object
+        rb.velocity = Vector2.zero;
+
+        // Update the Current player every loop
         Current.Move();
+
+        // Apply previous forces to object
+        rb.AddForce(playerMovementVector);
     }
 
     public static void InitializeResources() {
@@ -97,54 +105,42 @@ public class Player : MonoBehaviour {
     public static void SetCurrentPlayer(Player p) {
         Current = p;
         p.gameObject.name = "Player";
+        Current.rb.velocity = Vector2.zero;     // This prevents the slingshot bug where we have infinite velocity on Current player change
     }
 
     // Move():          Moves the player object
-    public void Move(bool isExternalForce = false) {
-        // If this is movement call from a different source other than input (ie. Barrier spawn), attach the same force
-        if (isExternalForce) rb.AddForce(Vector2.down * BarrierManager.Speed);
-
-        // This is direct input for the current player
-        else {
-            if (this == Current) {
-                rb.velocity = Vector2.zero;
-                Vector2 movement;
-                
-                // Get input from keyboard:
-                if (Input.GetAxis("Horizontal") != 0 || Input.GetAxis("Vertical") != 0) {
-                    playerMovementVector.x = Input.GetAxis("Horizontal");
-                    playerMovementVector.y = Input.GetAxis("Vertical");
-                    movement = playerMovementVector * playerSpeed;
-                }
-
-                // Get input from touch:
-                else if (Input.touchCount > 0) {
-                    Vector2 touchPosition = Camera.main.ScreenToWorldPoint(Input.GetTouch(0).position);
-                    playerMovementVector.x = touchPosition.x - transform.position.x;
-                    playerMovementVector.y = touchPosition.y - transform.position.y;
-                    movement = playerMovementVector * playerSpeed;
-                }
-
-                // There is no input and we're beyond the delay time for idling, auto track to center position
-                else {
-                    movement = Vector2.zero;
-                    if (lastInputTime <= 0) {
-                        playerMovementVector.x = idleTrackingTarget.position.x - transform.position.x;
-                        playerMovementVector.y = idleTrackingTarget.position.y - transform.position.y;
-                        movement = playerMovementVector * playerSpeed * .25f;
-                    }
-                }
-
-                Debug.Log($"Velocity: {playerMovementVector},\tSpeed: {playerSpeed}");
-                rb.AddForce(movement);
-            }
-            // Correct player position after hitting the barrier / switching Player objects:
-            // playerVelocity.y = isNewPlayer ? (playerDefaultHeight - transform.position.y) * verticalResistance * playerSpeed : 0;
-
-            // rb.velocity = playerMovementVector;
+    public void Move() {
+        Vector2 movement = Vector2.zero;
+        float movementScalar = 1f;
+        
+        // Get input from keyboard:
+        if (Input.GetAxis("Horizontal") != 0 || Input.GetAxis("Vertical") != 0) {
+            movement.x = Input.GetAxis("Horizontal");
+            movement.y = Input.GetAxis("Vertical");
         }
-    }
 
+        // Get input from touch:
+        else if (Input.touchCount > 0) {
+            Vector2 touchPosition = Camera.main.ScreenToWorldPoint(Input.GetTouch(0).position);
+            movement.x = touchPosition.x - transform.position.x;
+            movement.y = touchPosition.y - transform.position.y;
+        }
+
+        // There is no input and we're beyond the delay time for idling, auto track to center position
+        else {
+            movement = Vector2.zero;
+            if (lastInputTime <= 0) {
+                movement.x = idleTrackingTarget.position.x - transform.position.x;
+                movement.y = idleTrackingTarget.position.y - transform.position.y;
+                movementScalar = 0.25f;
+            }
+        }
+
+        playerMovementVector = movement * playerSpeed * movementScalar;
+    }
+    public void Move(Vector2 force) {
+        playerMovementVector = force;
+    }
     public void OnCollisionEnter2D() {
         // Once the player object has touched the barrier, toggle the boolean for y-axis movement in mVelocity. (It will now always be 0 to prevent the Rigidbody from bouncing.)
         isNewPlayer = false;

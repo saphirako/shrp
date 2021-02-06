@@ -24,7 +24,7 @@ public class BarrierManager : MonoBehaviour {
     [SerializeField]
     private float m_SpawnSpeed = 4.0f;               // Interval (in seconds) in which barriers are spawned. m_SpawnTimer is reset to this value when it reaches 0.
     [SerializeField]
-    private static float m_MovementSpeed = 100.0f;            // Speed with which each Barrier (and deactivated players) move
+    private static float m_MovementSpeed = 50.0f;            // Speed with which each Barrier (and deactivated players) move
     [SerializeField]
     private static int m_PieceCount = 11;                   // Dictates how many barrier pieces comprise a barrier
 
